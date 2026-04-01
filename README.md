@@ -13,7 +13,7 @@ excluding [FIFO and spill register](fusesoc/designs/cross/common/rtl_external) (
   - [EDA tool execution](#eda-tool-execution)
 - [Developer guide](#developer-guide)
   - [Design Verification](#design-verification)
-- [Acknowledgement](#acknowlegement)
+- [Bibliography](#bibliography)
 
 # User guide
 
