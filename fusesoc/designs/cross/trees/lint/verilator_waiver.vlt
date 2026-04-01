@@ -1,0 +1,67 @@
+// Copyright 2026, Technical University of Munich
+// Copyright 2026, Politecnico di Milano.
+// SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+//
+// Licensed under the Solderpad Hardware License v 2.1 (the "License");
+// you may not use this file except in compliance with the License, or,
+// at your option, the Apache License version 2.0. You may obtain a
+// copy of the License at
+//
+// https://solderpad.org/licenses/SHL-2.1/
+//
+// Unless required by applicable law or agreed to in writing, any work
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// ----------
+//
+// CROSS - Codes and Restricted Objects Signature Scheme
+//
+// @version 1.0 (April 2026)
+//
+// @author: Patrick Karl <patrick.karl@tum.de>
+
+
+`verilator_config
+
+// Design files
+lint_off -rule PINCONNECTEMPTY -file "*/rtl/tree_unit.sv" -match "*regen_done*"
+lint_off -rule PINCONNECTEMPTY -file "*/rtl/tree_unit.sv" -match "*regen_is_leaf*"
+lint_off -rule PINCONNECTEMPTY -file "*/rtl/tree_unit.sv" -match "*flag_last*"
+lint_off -rule PINCONNECTEMPTY -file "*/rtl/tree_unit.sv" -match "*path_last*"
+
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/no_tree_unit.sv" -match "*mem_addr_t*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/no_tree_unit.sv" -match "*pad_err_clear*"
+lint_off -rule UNSIGNED -file "*/rtl/mtree_addr.sv"
+lint_off -rule UNSIGNED -file "*/rtl/stree_addr.sv"
+
+
+// Testbench files
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_no_tree.sv" -match "*s_axis_b_tdata*"
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_no_tree.sv" -match "*s_axis_ch_tdata*"
+
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_mtree_addr.sv" -match "*s_axis_ch_tdata*"
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_mtree_addr.sv" -match "*flag_bit_rd_tmp*"
+
+lint_off -rule PINCONNECTEMPTY -file "*/tb/tb_mtree_intf.sv" -match "*sig_ctrl_mtree_vrfy_done*"
+lint_off -rule PINCONNECTEMPTY -file "*/tb/tb_mtree_intf.sv" -match "*sig_ctrl_proof_cnt*"
+lint_off -rule PINCONNECTEMPTY -file "*/tb/tb_mtree_intf.sv" -match "*sig_ctrl_mtree_done*"
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_mtree_intf.sv" -match "*s_axis_ch_tdata*"
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_mtree_intf.sv" -match "*flag_bit_rd_tmp*"
+
+
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_stree_addr.sv" -match "*s_axis_ch_tdata*"
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_stree_addr.sv" -match "*flag_bit_rd_tmp*"
+
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_stree_intf.sv" -match "*s_axis_ch_tdata*"
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_stree_intf.sv" -match "*flag_bit_rd_tmp*"
+lint_off -rule PINCONNECTEMPTY -file "*/tb/tb_stree_intf.sv" -match "*sig_ctrl_path_cnt*"
+lint_off -rule PINCONNECTEMPTY -file "*/tb/tb_stree_intf.sv" -match "*sig_ctrl_stree_vrfy_done*"
+lint_off -rule PINCONNECTEMPTY -file "*/tb/tb_stree_intf.sv" -match "*stree_leaves_done*"
+lint_off -rule PINCONNECTEMPTY -file "*/tb/tb_stree_intf.sv" -match "*stree_single_child*"
+lint_off -rule PINCONNECTEMPTY -file "*/tb/tb_stree_intf.sv" -match "*addr_last_seed*"
+lint_off -rule PINMISSING -file "*/tb/tb_stree_intf.sv" -match "*parent_idx*"
+
+lint_off -rule UNUSEDSIGNAL -file "*/tb/tb_tree_unit.sv" -match "*s_axis_ch_tdata*"

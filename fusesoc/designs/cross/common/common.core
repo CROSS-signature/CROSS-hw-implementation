@@ -1,0 +1,108 @@
+CAPI=2:
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Patrick Karl <patrick.karl@tum.de>
+name: cross:common:common:0.1.0
+description: Common utility modules used throughout the project.
+
+filesets:
+  rtl:
+    depend:
+      - cross:axi:stream
+      - cross:pkg:common_pkg
+      - cross:pkg:cross_pkg
+      - hash:sha3:core
+    files:
+      - rtl/axis_circular_buffer.sv
+      - rtl/axis_broadcast.sv
+      - rtl/axis_compare.sv
+      - rtl/memctrl_intf.svh: { is_include_file: true }
+      - rtl/axis2stream_w.sv
+      - rtl/stream_r2axis.sv
+      - rtl/axis_combiner.sv
+      - rtl/axis_demux.sv
+      - rtl/axis_keep_compress.sv
+      - rtl/axis_keep_decompress.sv
+      - rtl/axis_mux.sv
+      - rtl/axis_ram_adapter.sv
+      - rtl/axis_reg.sv
+      - rtl/axis_replicate.sv
+      - rtl/axis_clone.sv
+      - rtl/counter.sv
+      - rtl/counter_dec.sv
+      - rtl/downscale.sv
+      - rtl/upscale.sv
+      - rtl/width_converter.sv
+      - rtl/fifo.sv
+      - rtl/circ_buffer.sv
+      - rtl/fifo_ram.sv
+      - rtl/fifo_ram_wrapper.sv
+      - rtl/sp_lutram.sv
+      - rtl/sp_ram.sv
+      - rtl/sp_ram_parity.sv
+      - rtl/dp_ram_parity.sv
+    file_type: systemVerilogSource
+  rtl_ext:
+    files:
+      - rtl_external/spill_register_flushable.sv
+      - rtl_external/spill_register.sv
+      - rtl_external/fall_through_register.sv
+      - rtl_external/fifo_v3.sv
+    file_type: systemVerilogSource
+
+  lint_verilator:
+    files:
+      - lint/verilator_waiver.vlt: { file_type: vlt }
+
+  synth_files:
+    depend:
+      - fpga:xilinx:clock_generator
+      - fpga:xilinx:proj_utils
+
+targets:
+  default: &default
+    filesets:
+      - tool_verilator ? (lint_verilator)
+      - rtl_ext
+      - rtl
+
+  synth:
+    <<: *default
+    description: synthesis with Vivado for preliminary timing and resource analysis
+    default_tool: vivado
+    filesets_append:
+      - synth_files
+    generate:
+      - clock_generator
+    tools:
+      vivado:
+        part: xc7a200tfbg484-3
+
+generate:
+  clock_generator:
+    generator: xilinx_clock_generator
+    parameters:
+      frequency: 100
+      clk_port: "clk_i"
+      clock_buffer: "BUFGCTRL_X0Y0"

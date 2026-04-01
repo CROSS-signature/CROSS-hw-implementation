@@ -1,0 +1,6 @@
+# verible-verilog-lint --help_rules=all
+line-length=length:131
+parameter-name-style=localparam_style:CamelCase|ALL_CAPS
+explicit-parameter-storage-type=exempt_type:string
+-interface-name-style
+-unpacked-dimensions-range-ordering

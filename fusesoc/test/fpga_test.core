@@ -1,0 +1,156 @@
+CAPI=2:
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Patrick Karl <patrick.karl@tum.de>
+name: cross:fpga:test:0.1.0
+description: Test environment for CROSS.
+
+filesets:
+  rtl:
+    depend:
+      - cross:top:top
+      - cross:common:common
+    files:
+      - rtl/framework_pkg.vhd
+      - rtl/0_intf/fifo.vhd
+      - rtl/0_intf/intf_wrapper.vhd
+      - rtl/0_intf/uart_if.vhd
+      - rtl/1_framework/upscale.vhd
+      - rtl/1_framework/downscale.vhd
+      - rtl/1_framework/width_converter.vhd
+      - rtl/1_framework/tdp_bram.vhd
+      - rtl/1_framework/conv_to_mem.vhd
+      - rtl/1_framework/mem_to_conv.vhd
+      - rtl/1_framework/tdp_wrapper.vhd
+      - rtl/1_framework/prng.vhd
+      - rtl/1_framework/prng_wrapper.vhd
+      - rtl/1_framework/ctrl_unit.vhd
+      - rtl/1_framework/framework_subsystem.vhd
+      - rtl/test_top.vhd
+    file_type: vhdlSource-2008
+
+  synth_files:
+    depend:
+      - fpga:xilinx:proj_utils
+
+  tcl_files:
+    files:
+      - tcl/clk_wiz.tcl
+    file_type: tclSource
+
+  nexys_video:
+    files:
+      - xdc/nexys_video.xdc: { file_type: xdc }
+
+  tb_cocotb:
+    depend:
+      - cross:shared:cocotb_utils
+    files:
+      - tb/tb_top.py: { file_type: user, copyto: tb_top.py }
+      - tb/test_top.py: { file_type: user, copyto: test_top.py }
+
+  lint_verilator:
+    files:
+      - lint/verilator_waiver.vlt: { file_type: vlt }
+
+parameters:
+  DATA_WIDTH:
+    datatype: int
+    description: Data width of internal and external streams
+    paramtype: vlogparam
+  TEST_EN:
+    datatype: bool
+    description: Enables a performance counter which is streamed as last axis frame
+    paramtype: vlogparam
+  RSDP:
+    datatype: bool
+    paramtype: vlogdefine
+    description: variant (mutually exclusive with RSDPG)
+  RSDPG:
+    datatype: bool
+    paramtype: vlogdefine
+    description: variant (mutually exclusive with RSDP)
+  CATEGORY_1:
+    datatype: bool
+    paramtype: vlogdefine
+    description: security category (mutually exclusive with CATEGORY_3 and CATEGORY_5)
+  CATEGORY_3:
+    datatype: bool
+    paramtype: vlogdefine
+    description: security category (mutually exclusive with CATEGORY_1 and CATEGORY_5)
+  CATEGORY_5:
+    datatype: bool
+    paramtype: vlogdefine
+    description: security category (mutually exclusive with CATEGORY_1 and CATEGORY_3)
+  FAST:
+    datatype: bool
+    paramtype: vlogdefine
+    description: optimization corner (mutually exclusive with BALANCED and SMALL)
+  BALANCED:
+    datatype: bool
+    paramtype: vlogdefine
+    description: optimization corner (mutually exclusive with FAST and SMALL)
+  SMALL:
+    datatype: bool
+    paramtype: vlogdefine
+    description: optimization corner (mutually exclusive with FAST and BALANCED)
+  KECCAK_UNROLL_FACTOR:
+    datatype: int
+    description: Number of Keccak rounds executed in a single clock cycle
+    paramtype: vlogparam
+  MAT_DATA_WIDTH:
+    datatype: int
+    description: Data width of streams transferring the matrix rows in the arithmetic unit
+    paramtype: vlogparam
+
+targets:
+  default: &default
+    filesets:
+      - tool_verilator ? (lint_verilator)
+      - rtl
+    toplevel: cross_top
+
+  synth:
+    <<: *default
+    description: synthesis with Vivado for preliminary timing and resource analysis
+    default_tool: vivado
+    parameters_append:
+      - RSDPG
+      - RSDP
+      - CATEGORY_1
+      - CATEGORY_3
+      - CATEGORY_5
+      - FAST
+      - BALANCED
+      - SMALL
+      - KECCAK_UNROLL_FACTOR
+      - MAT_DATA_WIDTH
+    filesets_append:
+      - synth_files
+      - nexys_video
+      - tcl_files
+    toplevel: test_top
+    tools:
+      vivado:
+        part: xc7a200tsbg484-1

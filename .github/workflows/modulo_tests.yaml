@@ -1,0 +1,95 @@
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Francesco Antognazza <francesco.antognazza@polimi.it>
+
+# act --bind --var REGISTRY_URL --var REGISTRY_USER --container-daemon-socket $XDG_RUNTIME_DIR/podman/podman.sock -W .github/workflows/{{test_name)}.yaml --rm -q
+name: "Regression test (modulo)"
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - fusesoc/designs/modulo/**
+  schedule:
+    - cron: "0 22 1,15 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  verilog_tb_jobs:
+    name: CocoTB-based tests
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ vars.REGISTRY_URL || 'docker.io' }}/${{ vars.REGISTRY_USER || 'fantognazza' }}/cross-hw-validation:latest
+    env:
+      TB_MAKE_PARALLELISM: 1
+    defaults:
+      run:
+        shell: micromamba-shell {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-hw-env
+      - name: Print toolchain version
+        run: |
+          set -x
+          which node
+          which verilator
+          which python3
+          which fusesoc
+          which gcc
+          which g++
+          node --version
+          verilator --version
+          python3 --version
+          fusesoc --version
+          cocotb-config --version
+          cocotb-config --python-bin
+          cocotb-config --libpython
+          cocotb-config --lib-dir
+          verible-verilog-preprocessor --version
+          verible-verilog-lint --version
+          verible-verilog-format --version
+          gcc --version | head -n 1
+          g++ --version | head -n 1
+      - name: Mersenne prime modulo
+        run: fusesoc run --target sim cross:modulo:mersenne
+        if: always()
+      - name: Crandall prime modulo
+        run: fusesoc run --target sim cross:modulo:crandall
+        if: always()
+
+      - name: Upload CocoTB reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: CocoTB simulation artifacts
+          path: |
+            build/**/report.html
+        if: always() && !env.LOCAL_ACT

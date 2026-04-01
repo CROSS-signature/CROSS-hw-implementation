@@ -1,0 +1,45 @@
+// Copyright 2026, Technical University of Munich
+// Copyright 2026, Politecnico di Milano.
+// SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+//
+// Licensed under the Solderpad Hardware License v 2.1 (the "License");
+// you may not use this file except in compliance with the License, or,
+// at your option, the Apache License version 2.0. You may obtain a
+// copy of the License at
+//
+// https://solderpad.org/licenses/SHL-2.1/
+//
+// Unless required by applicable law or agreed to in writing, any work
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// ----------
+//
+// CROSS - Codes and Restricted Objects Signature Scheme
+//
+// @version 1.0 (April 2026)
+//
+// @author: Francesco Antognazza <francesco.antognazza@polimi.it>
+
+`verilator_config
+
+lint_off -rule UNUSED -file "*/rtl_external/round.sv" -match "*round_const*"
+lint_off -rule UNOPTFLAT -file "*/rtl/sha3.sv" -match "*word_valid*"
+lint_off -rule UNOPTFLAT -file "*/rtl_external/sha3_high_perf_core.sv" -match "*f_ack*"
+lint_off -rule UNOPTFLAT -file "*/rtl_external/sha3_high_perf_core.sv" -match "*f_start*"
+lint_off -rule UNDRIVEN -file "*/tb/testbench_*" -match "*rotate*"
+lint_off -rule UNUSEDSIGNAL -file "*/tb/testbench_*" -match "*ack*"
+lint_off -rule UNOPTFLAT -file "*/rtl/sha3.sv" -match "*out_ready*"
+lint_off -rule UNOPTFLAT -file "*/rtl/sha3.sv" -match "*sha3_rate_full*"
+lint_off -rule UNOPTFLAT -file "*/rtl/sha3.sv" -match "*last_block_absorbed*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/stream_r.sv" -match "*grant*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/stream_r.sv" -match "*valid*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/stream_w.sv" -match "*wdata*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/bus_r.sv" -match "*address*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/bus_w.sv" -match "*address*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/bus_w.sv" -match "*wdata*"
+lint_off -rule UNOPTFLAT -file "*/rtl/bus_r.sv" -match "*grant*"
+// https://github.com/verilator/verilator/issues/5120
+lint_off -rule UNOPTFLAT -file "*/rtl_external/f_permutation.sv" -match "*round_idx*"

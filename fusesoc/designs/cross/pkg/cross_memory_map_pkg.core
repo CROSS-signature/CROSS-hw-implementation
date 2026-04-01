@@ -1,0 +1,85 @@
+CAPI=2:
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Patrick Karl <patrick.karl@tum.de>
+name: cross:pkg:cross_memory_map_pkg:0.1.0
+description: CROSS memory map
+
+filesets:
+  pkg:
+    files:
+      - rtl/cross_memory_map_pkg.sv
+    file_type: systemVerilogSource
+  lint_verilator:
+    files:
+      - lint/verilator_waiver.vlt: { file_type: vlt }
+
+targets:
+  default: &default
+    filesets:
+      - tool_verilator ? (lint_verilator)
+      - pkg
+    parameters_append:
+      - RSDPG
+      - RSDP
+      - CATEGORY_1
+      - CATEGORY_3
+      - CATEGORY_5
+      - FAST
+      - BALANCED
+      - SMALL
+
+parameters:
+  RSDP:
+    datatype: bool
+    paramtype: vlogdefine
+    description: variant (mutually exclusive with RSDPG)
+  RSDPG:
+    datatype: bool
+    paramtype: vlogdefine
+    description: variant (mutually exclusive with RSDP)
+  CATEGORY_1:
+    datatype: bool
+    paramtype: vlogdefine
+    description: security category (mutually exclusive with CATEGORY_3 and CATEGORY_5)
+  CATEGORY_3:
+    datatype: bool
+    paramtype: vlogdefine
+    description: security category (mutually exclusive with CATEGORY_1 and CATEGORY_5)
+  CATEGORY_5:
+    datatype: bool
+    paramtype: vlogdefine
+    description: security category (mutually exclusive with CATEGORY_1 and CATEGORY_3)
+  FAST:
+    datatype: bool
+    paramtype: vlogdefine
+    description: optimization corner (mutually exclusive with BALANCED and SMALL)
+  BALANCED:
+    datatype: bool
+    paramtype: vlogdefine
+    description: optimization corner (mutually exclusive with FAST and SMALL)
+  SMALL:
+    datatype: bool
+    paramtype: vlogdefine
+    description: optimization corner (mutually exclusive with FAST and BALANCED)

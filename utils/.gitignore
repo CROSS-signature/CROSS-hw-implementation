@@ -1,0 +1,5 @@
+bitstreams
+cc_results
+libs
+*.csv
+digilent_nexys_video.cfg

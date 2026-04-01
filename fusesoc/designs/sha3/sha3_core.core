@@ -1,0 +1,180 @@
+CAPI=2:
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Francesco Antognazza <francesco.antognazza@polimi.it>
+name: hash:sha3:core:0.1.0
+description: Shake128/256 module
+
+filesets:
+  rtl:
+    depend:
+      - cross:pkg:common_pkg
+      - hash:sha3:pkg
+    files:
+      - rtl/stream_r.sv: { is_include_file: true }
+      - rtl/stream_w.sv: { is_include_file: true }
+      - rtl/sha3.sv
+    file_type: systemVerilogSource
+
+  rtl_external:
+    depend:
+      - cross:pkg:common_pkg
+      - hash:sha3:pkg
+    files:
+      - rtl_external/f_permutation.sv
+      - rtl_external/padder.sv
+      - rtl_external/rconst.sv
+      - rtl_external/round.sv
+      - rtl_external/sha3_high_perf_core.sv
+    file_type: systemVerilogSource
+
+  tb_top:
+    depend:
+      - cross:pkg:common_pkg
+    files:
+      - tb/tb_sha3.sv
+    file_type: systemVerilogSource
+
+  tb_cocotb:
+    depend:
+      - cross:shared:cocotb_utils
+    files:
+      - tb/tb_sha3.py: { file_type: user, copyto: tb_sha3.py }
+      - tb/test_sha3.py: { file_type: user, copyto: test_sha3.py }
+      - tb/ReadStream.py: { file_type: user, copyto: ReadStream.py }
+      - tb/WriteStream.py: { file_type: user, copyto: WriteStream.py }
+
+  synth_files:
+    depend:
+      - fpga:xilinx:clock_generator
+      - fpga:xilinx:proj_utils
+
+  lint_verilator:
+    files:
+      - lint/verilator_waiver.vlt: { file_type: vlt }
+
+targets:
+  default: &default
+    filesets:
+      - "tool_verilator ? (lint_verilator)"
+      - rtl
+      - rtl_external
+    toplevel: sha3
+
+  lint:
+    <<: *default
+    description: Lint the source code
+    default_tool: verilator
+    filesets_append:
+      - tb_top
+    toplevel: tb_sha3
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--assert"
+
+  sim:
+    <<: *default
+    description: Simulate the IP with CocoTB
+    default_tool: verilator
+    filesets_append:
+      - tb_top
+      - tb_cocotb
+    toplevel: tb_sha3
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--assert"
+    hooks:
+      post_build:
+        - run_cocotb_test
+
+  synth:
+    <<: *default
+    description: synthesis with Vivado for preliminary timing and resource analysis
+    default_tool: vivado
+    filesets_append:
+      - tb_top
+      - synth_files
+    generate_append:
+      - clock_generator
+    toplevel: tb_sha3
+    parameters:
+      - SHA3_ALG
+      - STREAM_WIDTH
+      - UNROLL_FACTOR
+      - SEED1_SZ
+      - SEED2_SZ
+    tools:
+      vivado:
+        part: xc7a200tfbg484-3
+
+parameters:
+  SHA3_ALG:
+    datatype: str
+    description: algorithm to implement (see sha3_pkg::sha3_alg_t)
+    paramtype: vlogdefine
+  STREAM_WIDTH:
+    datatype: int
+    description: width of the input/output streams
+    paramtype: vlogparam
+  UNROLL_FACTOR:
+    datatype: int
+    description: number of rounds to perform in parallel
+    paramtype: vlogparam
+  SEED1_SZ:
+    datatype: int
+    description: the size, in bits, of the expanded seed
+    paramtype: vlogparam
+  SEED2_SZ:
+    datatype: int
+    description: the size, in bits, of the expanded seed
+    paramtype: vlogparam
+
+generate:
+  clock_generator:
+    generator: xilinx_clock_generator
+    parameters:
+      frequency: 100
+      clk_port: "clk_i"
+      clock_buffer: "BUFGCTRL_X0Y0"
+
+scripts:
+  run_cocotb_test:
+    cmd:
+      - pytest
+      - -n
+      - auto
+      - -o
+      - log_cli=True
+      - --log-file=test-run.log
+      - --junitxml=test-results.xml
+      - --cocotbxml=test-cocotb.xml
+      - --html=report.html
+      - --self-contained-html
+      - test_sha3.py

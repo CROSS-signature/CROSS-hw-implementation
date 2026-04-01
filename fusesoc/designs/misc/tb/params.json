@@ -1,0 +1,203 @@
+[
+    {
+        "P": "127",
+        "Z": "7",
+        "category": [
+            {
+                "LAMBDA": "128",
+                "N": "127",
+                "K": "76",
+                "target": [
+                    {
+                        "SIGSIZE": "18432",
+                        "TNODES": "82",
+                        "T": "157",
+                        "W": "82",
+                        "CLIB": "libcross_RSDP_CATEGORY_1_SPEED.so",
+                        "defines": "+define+RSDP+CATEGORY_1+FAST"
+                    },
+                    {
+                        "SIGSIZE": "13152",
+                        "TNODES": "108",
+                        "T": "256",
+                        "W": "215",
+                        "CLIB": "libcross_RSDP_CATEGORY_1_BALANCED.so",
+                        "defines": "+define+RSDP+CATEGORY_1+BALANCED"
+                    },
+                    {
+                        "SIGSIZE": "12432",
+                        "TNODES": "129",
+                        "T": "520",
+                        "W": "488",
+                        "CLIB": "libcross_RSDP_CATEGORY_1_SIG_SIZE.so",
+                        "defines": "+define+RSDP+CATEGORY_1+SMALL"
+                    }
+                ]
+            },
+            {
+                "LAMBDA": "192",
+                "N": "187",
+                "K": "111",
+                "target": [
+                    {
+                        "SIGSIZE": "41406",
+                        "TNODES": "125",
+                        "T": "239",
+                        "W": "125",
+                        "CLIB": "libcross_RSDP_CATEGORY_3_SPEED.so",
+                        "defines": "+define+RSDP+CATEGORY_3+FAST"
+                    },
+                    {
+                        "SIGSIZE": "29853",
+                        "TNODES": "165",
+                        "T": "384",
+                        "W": "321",
+                        "CLIB": "libcross_RSDP_CATEGORY_3_BALANCED.so",
+                        "defines": "+define+RSDP+CATEGORY_3+BALANCED"
+                    },
+                    {
+                        "SIGSIZE": "28391",
+                        "TNODES": "184",
+                        "T": "580",
+                        "W": "527",
+                        "CLIB": "libcross_RSDP_CATEGORY_3_SIG_SIZE.so",
+                        "defines": "+define+RSDP+CATEGORY_3+SMALL"
+                    }
+                ]
+            },
+            {
+                "LAMBDA": "256",
+                "N": "251",
+                "K": "150",
+                "target": [
+                    {
+                        "SIGSIZE": "74590",
+                        "TNODES": "167",
+                        "T": "321",
+                        "W": "167",
+                        "CLIB": "libcross_RSDP_CATEGORY_5_SPEED.so",
+                        "defines": "+define+RSDP+CATEGORY_5+FAST"
+                    },
+                    {
+                        "SIGSIZE": "53527",
+                        "TNODES": "220",
+                        "T": "512",
+                        "W": "427",
+                        "CLIB": "libcross_RSDP_CATEGORY_5_BALANCED.so",
+                        "defines": "+define+RSDP+CATEGORY_5+BALANCED"
+                    },
+                    {
+                        "SIGSIZE": "50818",
+                        "TNODES": "251",
+                        "T": "832",
+                        "W": "762",
+                        "CLIB": "libcross_RSDP_CATEGORY_5_SIG_SIZE.so",
+                        "defines": "+define+RSDP+CATEGORY_5+SMALL"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "P": "509",
+        "Z": "127",
+        "category": [
+            {
+                "LAMBDA": "128",
+                "N": "55",
+                "K": "36",
+                "M": "25",
+                "target": [
+                    {
+                        "SIGSIZE": "11980",
+                        "TNODES": "76",
+                        "T": "147",
+                        "W": "76",
+                        "CLIB": "libcross_RSDPG_CATEGORY_1_SPEED.so",
+                        "defines": "+define+RSDPG+CATEGORY_1+FAST"
+                    },
+                    {
+                        "SIGSIZE": "9120",
+                        "TNODES": "101",
+                        "T": "256",
+                        "W": "220",
+                        "CLIB": "libcross_RSDPG_CATEGORY_1_BALANCED.so",
+                        "defines": "+define+RSDPG+CATEGORY_1+BALANCED"
+                    },
+                    {
+                        "SIGSIZE": "8960",
+                        "TNODES": "117",
+                        "T": "512",
+                        "W": "484",
+                        "CLIB": "libcross_RSDPG_CATEGORY_1_SIG_SIZE.so",
+                        "defines": "+define+RSDPG+CATEGORY_1+SMALL"
+                    }
+                ]
+            },
+            {
+                "LAMBDA": "192",
+                "N": "79",
+                "K": "48",
+                "M": "40",
+                "target": [
+                    {
+                        "SIGSIZE": "26772",
+                        "TNODES": "119",
+                        "T": "224",
+                        "W": "119",
+                        "CLIB": "libcross_RSDPG_CATEGORY_3_SPEED.so",
+                        "defines": "+define+RSDPG+CATEGORY_3+FAST"
+                    },
+                    {
+                        "SIGSIZE": "22464",
+                        "TNODES": "138",
+                        "T": "268",
+                        "W": "196",
+                        "CLIB": "libcross_RSDPG_CATEGORY_3_BALANCED.so",
+                        "defines": "+define+RSDPG+CATEGORY_3+BALANCED"
+                    },
+                    {
+                        "SIGSIZE": "20452",
+                        "TNODES": "165",
+                        "T": "512",
+                        "W": "463",
+                        "CLIB": "libcross_RSDPG_CATEGORY_3_SIG_SIZE.so",
+                        "defines": "+define+RSDPG+CATEGORY_3+SMALL"
+                    }
+                ]
+            },
+            {
+                "LAMBDA": "256",
+                "N": "106",
+                "K": "69",
+                "M": "48",
+                "target": [
+                    {
+                        "SIGSIZE": "48102",
+                        "TNODES": "153",
+                        "T": "300",
+                        "W": "153",
+                        "CLIB": "libcross_RSDPG_CATEGORY_5_SPEED.so",
+                        "defines": "+define+RSDPG+CATEGORY_5+FAST"
+                    },
+                    {
+                        "SIGSIZE": "40100",
+                        "TNODES": "185",
+                        "T": "356",
+                        "W": "258",
+                        "CLIB": "libcross_RSDPG_CATEGORY_5_BALANCED.so",
+                        "defines": "+define+RSDPG+CATEGORY_5+BALANCED"
+                    },
+                    {
+                        "SIGSIZE": "36454",
+                        "TNODES": "220",
+                        "T": "642",
+                        "W": "575",
+                        "CLIB": "libcross_RSDPG_CATEGORY_5_SIG_SIZE.so",
+                        "defines": "+define+RSDPG+CATEGORY_5+SMALL"
+                    }
+                ]
+            }
+        ]
+    }
+]

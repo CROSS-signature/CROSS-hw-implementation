@@ -1,0 +1,140 @@
+CAPI=2:
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Francesco Antognazza <francesco.antognazza@polimi.it>
+name: cross:arithmetic:add_sub_vector:0.1.0
+description: vectorized addition and subtraction
+
+filesets:
+  rtl:
+    depend:
+      - cross:pkg:common_pkg
+      - cross:common:common
+      - cross:pkg:arithmetic_unit_pkg
+      - cross:axi:stream
+    files:
+      - rtl/add_sub.sv
+      - rtl/add_sub_vector.sv
+    file_type: systemVerilogSource
+
+  tb_top:
+    depend:
+      - cross:pkg:common_pkg
+      - cross:pkg:cross_pkg
+    files:
+      - tb/tb_add_sub_vector.sv
+    file_type: systemVerilogSource
+
+  tb_cocotb:
+    depend:
+      - cross:shared:cocotb_utils
+    files:
+      - tb/tb_add_sub_vector.py:
+          { file_type: user, copyto: tb_add_sub_vector.py }
+      - tb/test_add_sub_vector.py:
+          { file_type: user, copyto: test_add_sub_vector.py }
+
+  synth_files:
+    depend:
+      - fpga:xilinx:clock_generator
+      - fpga:xilinx:proj_utils
+
+  lint_verilator:
+    files:
+      - lint/verilator_waiver.vlt: { file_type: vlt }
+
+targets:
+  default: &default
+    filesets:
+      - tool_verilator ? (lint_verilator)
+      - rtl
+    toplevel: add_sub_vector
+
+  sim:
+    <<: *default
+    description: Simulate the design for debug
+    default_tool: verilator
+    filesets_append:
+      - tb_top
+      - tb_cocotb
+    toplevel: tb_add_sub_vector
+    parameters_append: # just for a brief check
+      - RSDP=true
+      - CATEGORY_1=true
+      - FAST=true
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--assert"
+          - "--timing"
+    hooks:
+      post_build:
+        - run_cocotb_test
+
+  synth:
+    <<: *default
+    description: synthesis with Vivado for preliminary timing and resource analysis
+    default_tool: vivado
+    filesets_append:
+      - tb_top
+      - synth_files
+    generate:
+      - clock_generator
+    parameters_append:
+      - DATA_WIDTH
+    toplevel: tb_add_sub_vector
+    tools:
+      vivado:
+        part: xc7a200tfbg484-3
+
+parameters:
+  DATA_WIDTH:
+    datatype: int
+    description: size of the stream words
+    paramtype: vlogparam
+
+generate:
+  clock_generator:
+    generator: xilinx_clock_generator
+    parameters:
+      frequency: 100
+      clk_port: "clk_i"
+      clock_buffer: "BUFGCTRL_X0Y0"
+
+scripts:
+  run_cocotb_test:
+    cmd:
+      - pytest
+      - -n
+      - auto
+      - -o
+      - log_cli=True
+      - --log-file=test-run.log
+      - --junitxml=test-results.xml
+      - --cocotbxml=test-cocotb.xml
+      - --html=report.html
+      - --self-contained-html
+      - test_add_sub_vector.py

@@ -1,0 +1,330 @@
+CAPI=2:
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Patrick Karl <patrick.karl@tum.de>
+name: cross:trees:tree_unit:0.1.0
+description: Wrapper for tree version of CROSS.
+
+filesets:
+  rtl:
+    depend:
+      - cross:pkg:cross_pkg
+      - cross:axi:stream
+      - cross:pkg:common_pkg
+      - cross:common:common
+      - cross:pkg:mtree_pkg
+      - cross:pkg:stree_pkg
+      - cross:pkg:sample_unit_pkg
+      - cross:pkg:tree_unit_pkg
+    files:
+      - rtl/mtree_addr.sv
+      - rtl/stree_addr.sv
+      - rtl/mtree_su_intf.sv
+      - rtl/stree_su_intf.sv
+      - rtl/sig_ctrl.sv
+      - rtl/tree_unit.sv
+    file_type: systemVerilogSource
+
+  synth_files:
+    depend:
+      - fpga:xilinx:clock_generator
+      - fpga:xilinx:proj_utils
+
+  tb:
+    depend:
+      - cross:pkg:cross_pkg
+      - cross:axi:stream
+      - cross:pkg:tree_unit_pkg
+      - cross:pkg:mtree_pkg
+      - cross:pkg:stree_pkg
+    files:
+      - tb/tb_mtree_addr.sv
+      - tb/tb_mtree_intf.sv
+      - tb/tb_stree_addr.sv
+      - tb/tb_stree_intf.sv
+      - tb/tb_tree_unit.sv
+    file_type: systemVerilogSource
+
+  tb_cocotb_mtree_addr:
+    depend:
+      - cross:shared:cocotb_utils
+    files:
+      - tb/tb_mtree_addr.py: { file_type: user, copyto: tb_mtree_addr.py }
+      - tb/test_mtree_addr.py: { file_type: user, copyto: test_mtree_addr.py }
+
+  tb_cocotb_mtree_intf:
+    depend:
+      - cross:shared:cocotb_utils
+    files:
+      - tb/tb_mtree_intf.py: { file_type: user, copyto: tb_mtree_intf.py }
+      - tb/test_mtree_intf.py: { file_type: user, copyto: test_mtree_intf.py }
+
+  tb_cocotb_stree_addr:
+    depend:
+      - cross:shared:cocotb_utils
+    files:
+      - tb/tb_stree_addr.py: { file_type: user, copyto: tb_stree_addr.py }
+      - tb/test_stree_addr.py: { file_type: user, copyto: test_stree_addr.py }
+
+  tb_cocotb_stree_intf:
+    depend:
+      - cross:shared:cocotb_utils
+    files:
+      - tb/tb_stree_intf.py: { file_type: user, copyto: tb_stree_intf.py }
+      - tb/test_stree_intf.py: { file_type: user, copyto: test_stree_intf.py }
+
+  tb_cocotb_tree_unit:
+    depend:
+      - cross:shared:cocotb_utils
+    files:
+      - tb/tb_tree_unit.py: { file_type: user, copyto: tb_tree_unit.py }
+      - tb/test_tree_unit.py: { file_type: user, copyto: test_tree_unit.py }
+
+  lint_verilator:
+    files:
+      - lint/verilator_waiver.vlt: { file_type: vlt }
+
+parameters:
+  ADDR_WIDTH:
+    datatype: int
+    description: Width of memory where the signature is stored.
+    paramtype: vlogparam
+  DATA_WIDTH:
+    datatype: int
+    description: Data width of internal and external streams
+    paramtype: vlogparam
+  MERKLE_PROOF_BASEADDR:
+    datatype: int
+    description: Base address of the Merkle Tree Path nodes in the CROSS signature.
+    paramtype: vlogparam
+
+targets:
+  default: &default
+    filesets:
+      - tool_verilator ? (lint_verilator)
+      - rtl
+    toplevel: tree_unit
+
+  synth:
+    <<: *default
+    description: synthesis with Vivado for preliminary timing and resource analysis
+    default_tool: vivado
+    filesets_append:
+      - synth_files
+    generate:
+      - clock_generator
+    toplevel: tree_unit
+    tools:
+      vivado:
+        part: xc7a200tfbg484-3
+
+  sim_mtree_addr:
+    <<: *default
+    description: Simulate the design for debug
+    default_tool: verilator
+    filesets_append:
+      - tb
+      - tb_cocotb_mtree_addr
+    toplevel: tb_mtree_addr
+    parameters_append: # just for a brief check
+      - RSDP=true
+      - CATEGORY_1=true
+      - FAST=true
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--assert"
+          - "--timing"
+    hooks:
+      post_build:
+        - run_cocotb_test_mtree_addr
+
+  sim_mtree_intf:
+    <<: *default
+    description: Simulate the design for debug
+    default_tool: verilator
+    filesets_append:
+      - tb
+      - tb_cocotb_mtree_intf
+    toplevel: tb_mtree_intf
+    parameters_append: # just for a brief check
+      - RSDP=true
+      - CATEGORY_1=true
+      - FAST=true
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--assert"
+          - "--timing"
+    hooks:
+      post_build:
+        - run_cocotb_test_mtree_intf
+
+  sim_stree_addr:
+    <<: *default
+    description: Simulate the design for debug
+    default_tool: verilator
+    filesets_append:
+      - tb
+      - tb_cocotb_stree_addr
+    toplevel: tb_stree_addr
+    parameters_append: # just for a brief check
+      - RSDP=true
+      - CATEGORY_1=true
+      - FAST=true
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--assert"
+          - "--timing"
+    hooks:
+      post_build:
+        - run_cocotb_test_stree_addr
+
+  sim_stree_intf:
+    <<: *default
+    description: Simulate the design for debug
+    default_tool: verilator
+    filesets_append:
+      - tb
+      - tb_cocotb_stree_intf
+    toplevel: tb_stree_intf
+    parameters_append: # just for a brief check
+      - RSDP=true
+      - CATEGORY_1=true
+      - FAST=true
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--assert"
+          - "--timing"
+    hooks:
+      post_build:
+        - run_cocotb_test_stree_intf
+
+  sim_tree_unit:
+    <<: *default
+    description: Simulate the design for debug
+    default_tool: verilator
+    filesets_append:
+      - tb
+      - tb_cocotb_tree_unit
+    toplevel: tb_tree_unit
+    parameters_append: # just for a brief check
+      - RSDP=true
+      - CATEGORY_1=true
+      - FAST=true
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--assert"
+          - "--timing"
+    hooks:
+      post_build:
+        - run_cocotb_test_tree_unit
+
+generate:
+  clock_generator:
+    generator: xilinx_clock_generator
+    parameters:
+      frequency: 100
+      clk_port: "clk"
+      clock_buffer: "BUFGCTRL_X0Y0"
+
+scripts:
+  run_cocotb_test_mtree_addr:
+    cmd:
+      - pytest
+      - -n
+      - auto
+      - -o
+      - log_cli=True
+      - --log-file=test-run.log
+      - --junitxml=test-results.xml
+      - --cocotbxml=test-cocotb.xml
+      - --html=report.html
+      - --self-contained-html
+      - test_mtree_addr.py
+  run_cocotb_test_mtree_intf:
+    cmd:
+      - pytest
+      - -n
+      - auto
+      - -o
+      - log_cli=True
+      - --log-file=test-run.log
+      - --junitxml=test-results.xml
+      - --cocotbxml=test-cocotb.xml
+      - --html=report.html
+      - --self-contained-html
+      - test_mtree_intf.py
+  run_cocotb_test_stree_addr:
+    cmd:
+      - pytest
+      - -n
+      - auto
+      - -o
+      - log_cli=True
+      - --log-file=test-run.log
+      - --junitxml=test-results.xml
+      - --cocotbxml=test-cocotb.xml
+      - --html=report.html
+      - --self-contained-html
+      - test_stree_addr.py
+  run_cocotb_test_stree_intf:
+    cmd:
+      - pytest
+      - -n
+      - auto
+      - -o
+      - log_cli=True
+      - --log-file=test-run.log
+      - --junitxml=test-results.xml
+      - --cocotbxml=test-cocotb.xml
+      - --html=report.html
+      - --self-contained-html
+      - test_stree_intf.py
+  run_cocotb_test_tree_unit:
+    cmd:
+      - pytest
+      - -n
+      - auto
+      - -o
+      - log_cli=True
+      - --log-file=test-run.log
+      - --junitxml=test-results.xml
+      - --cocotbxml=test-cocotb.xml
+      - --html=report.html
+      - --self-contained-html
+      - test_tree_unit.py

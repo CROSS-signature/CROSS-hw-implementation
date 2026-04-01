@@ -1,0 +1,139 @@
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Francesco Antognazza <francesco.antognazza@polimi.it>
+
+# act --bind --var REGISTRY_URL --var REGISTRY_USER --container-daemon-socket $XDG_RUNTIME_DIR/podman/podman.sock -W .github/workflows/{{test_name)}.yaml --rm -q
+name: "Regression test (CROSS modules)"
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - ".github/workflows/cross_tests.yaml"
+  schedule:
+    - cron: "0 22 1,15 * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  cocotb_jobs:
+    name: CocoTB-based tests
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ vars.REGISTRY_URL || 'docker.io' }}/${{ vars.REGISTRY_USER || 'fantognazza' }}/cross-hw-validation:latest
+    env:
+      TB_ITERATIONS: 2
+      TB_MAKE_PARALLELISM: 1
+      PYTEST_XDIST_AUTO_NUM_WORKERS: 1 # Otherwise too much RAM is utilized
+    defaults:
+      run:
+        shell: micromamba-shell {0}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        uses: ./.github/actions/setup-hw-env
+      - name: Print toolchain version
+        run: |
+          set -x
+          which node
+          which verilator
+          which python3
+          which fusesoc
+          which gcc
+          which g++
+          node --version
+          verilator --version
+          python3 --version
+          fusesoc --version
+          cocotb-config --version
+          cocotb-config --python-bin
+          cocotb-config --libpython
+          cocotb-config --lib-dir
+          verible-verilog-preprocessor --version
+          verible-verilog-lint --version
+          verible-verilog-format --version
+          gcc --version | head -n 1
+          g++ --version | head -n 1
+      - name: AXI stream asymmetric FIFO
+        run: fusesoc run --target sim cross:axi:axis_asym_fifo
+        if: always()
+      - name: Vectorized addition/subtraction
+        run: fusesoc run --target sim cross:arithmetic:add_sub_vector
+        if: always()
+      - name: Vectorized point-wise multiplication
+        run: fusesoc run --target sim cross:arithmetic:mul_vector
+        if: always()
+      - name: Vector-Matrix multiplication
+        run: fusesoc run --target sim cross:arithmetic:mul_vector_matrix
+        if: always()
+      - name: Vectorized exponentiation
+        run: fusesoc run --target sim cross:arithmetic:exp_vector
+        if: always()
+      - name: Arithmetic unit
+        run: fusesoc run --target sim cross:arithmetic:arithmetic_unit
+        if: always()
+      - name: Sample unit
+        run: fusesoc run --target sim cross:sampling:sample_unit
+        if: always()
+      - name: Sample unit F_z rejection sampler
+        run: fusesoc run --target sim_zk_sample cross:sampling:sample_unit
+        if: always()
+      - name: Tree unit (no tree)
+        run: fusesoc run --target sim cross:trees:no_tree_unit
+        if: always()
+      - name: Merkle tree addressing
+        run: fusesoc run --target sim_mtree_addr cross:trees:tree_unit
+        if: always()
+      - name: Merkle tree interface
+        run: fusesoc run --target sim_mtree_intf cross:trees:tree_unit
+        if: always()
+      - name: Seed tree addressing
+        run: fusesoc run --target sim_stree_addr cross:trees:tree_unit
+        if: always()
+      - name: Seed tree interface
+        run: fusesoc run --target sim_stree_intf cross:trees:tree_unit
+        if: always()
+      - name: Tree unit
+        run: fusesoc run --target sim_tree_unit cross:trees:tree_unit
+        if: always()
+      - name: Pack-Unpack
+        run: fusesoc run --target sim cross:packing:packing_unit
+        if: always()
+      - name: TOP
+        run: fusesoc run --target sim cross:top:top
+        if: always()
+
+      - name: Upload CocoTB reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: CocoTB simulation artifacts
+          path: |
+            build/**/report.html
+        if: always() && !env.LOCAL_ACT

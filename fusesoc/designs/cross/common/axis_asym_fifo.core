@@ -1,0 +1,119 @@
+CAPI=2:
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Francesco Antognazza <francesco.antognazza@polimi.it>
+
+name: cross:axi:axis_asym_fifo:0.1.0
+description: "Circular buffer implemented with flip-flop based memory"
+
+filesets:
+    files_sv:
+        depend:
+            - cross:pkg:common_pkg
+            - cross:common:common
+            - cross:axi:stream
+        files:
+            - rtl/axis_asym_fifo.sv
+        file_type: systemVerilogSource
+
+    lint_verilator:
+        files:
+            - lint/axis_asym_fifo.vlt: { file_type: vlt }
+
+    tb_top:
+        depend:
+            - cross:pkg:common_pkg
+            - cross:axi:stream
+        files:
+            - tb/tb_axis_asym_fifo.sv: { file_type: systemVerilogSource }
+
+    tb_cocotb:
+        depend:
+            - cross:shared:cocotb_utils
+        files:
+            - tb/tb_axis_asym_fifo.py:
+                  { file_type: user, copyto: tb_axis_asym_fifo.py }
+            - tb/test_axis_asym_fifo.py:
+                  { file_type: user, copyto: test_axis_asym_fifo.py }
+
+targets:
+    default: &default
+        filesets:
+            - tool_verilator ? (lint_verilator)
+            - files_sv
+
+    lint:
+        <<: *default
+        description: Lint the source code
+        default_tool: verilator
+        filesets_append:
+            - tb_top
+        toplevel: tb_axis_asym_fifo
+        parameters_append: # just for a brief check
+            - RSDP=true
+            - CATEGORY_1=true
+            - FAST=true
+        tools:
+            verilator:
+                mode: lint-only
+                verilator_options:
+                    - "-Wall"
+                    - "--assert"
+
+    sim:
+        <<: *default
+        description: Simulate the IP with CocoTB
+        default_tool: verilator
+        filesets_append:
+            - tb_top
+            - tb_cocotb
+        toplevel: tb_axis_asym_fifo
+        parameters_append: # just for a brief check
+            - RSDP=true
+            - CATEGORY_1=true
+            - FAST=true
+        tools:
+            verilator:
+                mode: lint-only
+                verilator_options:
+                    - "-Wall"
+                    - "--assert"
+        hooks:
+            post_build:
+                - run_cocotb_test
+
+scripts:
+    run_cocotb_test:
+        cmd:
+            - pytest
+            - -n
+            - auto
+            - -o
+            - log_cli=True
+            - --log-file=test-run.log
+            - --junitxml=test-results.xml
+            - --cocotbxml=test-cocotb.xml
+            - --html=report.html
+            - --self-contained-html
+            - test_axis_asym_fifo.py

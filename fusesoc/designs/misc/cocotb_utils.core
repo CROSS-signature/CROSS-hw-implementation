@@ -1,0 +1,80 @@
+CAPI=2:
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Francesco Antognazza <francesco.antognazza@polimi.it>
+name: cross:shared:cocotb_utils:0.1.0
+description: "Utility functions for cocoTB"
+
+filesets:
+  python_files:
+    files:
+      - tb/cocotb_utils.py: { file_type: user, copyto: cocotb_utils.py }
+      - tb/cross.py: { file_type: user, copyto: cross.py }
+    file_type: user
+
+  json_files:
+    files:
+      - tb/params.json: { file_type: user, copyto: params.json }
+    file_type: user
+
+generators:
+  libcross_gen:
+    interpreter: python3
+    command: libcross_generator.py
+    cache_type: input
+    file_input_parameters: Makefile CROSS_c csprng_hash_c fips202_c keccakf1600_c merkle_c pack_unpack_c seedtree_c sign_c CROSS_h api_h csprng_hash_h fips202_h fp_arith_h keccakf1600_h merkle_tree_h pack_unpack_h parameters_h restr_arith_h seedtree_h sha3_h generator_script
+
+generate:
+  libcross_instance:
+    generator: libcross_gen
+    parameters:
+      Makefile: ctypes/Makefile
+      CROSS_c: ctypes/src/CROSS.c
+      csprng_hash_c: ctypes/src/csprng_hash.c
+      fips202_c: ctypes/src/fips202.c
+      keccakf1600_c: ctypes/src/keccakf1600.c
+      merkle_c: ctypes/src/merkle.c
+      pack_unpack_c: ctypes/src/pack_unpack.c
+      seedtree_c: ctypes/src/seedtree.c
+      sign_c: ctypes/src/sign.c
+      CROSS_h: ctypes/inc/CROSS.h
+      api_h: ctypes/inc/api.h
+      csprng_hash_h: ctypes/inc/csprng_hash.h
+      fips202_h: ctypes/inc/fips202.h
+      fp_arith_h: ctypes/inc/fp_arith.h
+      keccakf1600_h: ctypes/inc/keccakf1600.h
+      merkle_tree_h: ctypes/inc/merkle_tree.h
+      pack_unpack_h: ctypes/inc/pack_unpack.h
+      parameters_h: ctypes/inc/parameters.h
+      restr_arith_h: ctypes/inc/restr_arith.h
+      seedtree_h: ctypes/inc/seedtree.h
+      sha3_h: ctypes/inc/sha3.h
+      generator_script: libcross_generator.py
+
+targets:
+  default:
+    filesets:
+      - python_files
+      - json_files
+    generate: [libcross_instance]

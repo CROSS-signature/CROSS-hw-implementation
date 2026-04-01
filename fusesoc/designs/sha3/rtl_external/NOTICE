@@ -1,0 +1,37 @@
+SHA3 (FIPS 202) Hardware Accelerator
+Copyright 2026 Politecnico di Milano
+
+== Primary Author(s) ==
+- Francesco Antognazza (Politecnico di Milano)
+
+== Original Work and Attributions ==
+
+This product includes hardware designs originally developed by Homer Hsing.
+The following notice is preserved from the original distribution:
+
+    SHA3 core
+    Copyright 2013, Homer Hsing <homer.hsing@gmail.com>
+    This product includes software/hardware developed by Homer Hsing,
+    licensed under the Apache License, Version 2.0 (the "License");
+    you may not use any file in this project except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+
+== Modifications ==
+
+The original "high-throughput SHA3 core" (Keccak) has been heavily modified by the
+current author(s) to:
+1. Update the padding and constants to comply with the final FIPS 202
+   (SHA3) standard.
+2. Implement performance optimizations including [mention specific
+   changes like unrolling or pipelining].
+3. Re-license the derivative work under the Solderpad Hardware
+   License v2.1 to better support physical hardware implementation.
+
+== License Information ==
+
+This project is licensed under the Solderpad Hardware License v2.1.
+Per the terms of that license, you may, at your option, treat this
+work as released under the Apache License, Version 2.0.
+
+See the LICENSE file for full legal text.

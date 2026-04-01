@@ -1,0 +1,138 @@
+CAPI=2:
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Patrick Karl <patrick.karl@tum.de>
+name: cross:trees:no_tree_unit:0.1.0
+description: Wrapper for no-tree version in CROSS.
+
+filesets:
+  rtl:
+    depend:
+      - cross:trees:tree_unit
+    files:
+      - rtl/no_tree_unit.sv
+    file_type: systemVerilogSource
+
+  synth_files:
+    depend:
+      - fpga:xilinx:clock_generator
+      - fpga:xilinx:proj_utils
+
+  tb:
+    depend:
+      - cross:pkg:cross_pkg
+      - cross:trees:tree_unit
+    files:
+      - tb/tb_no_tree.sv
+    file_type: systemVerilogSource
+
+  tb_cocotb:
+    depend:
+      - cross:shared:cocotb_utils
+    files:
+      - tb/tb_no_tree.py: { file_type: user, copyto: tb_no_tree.py }
+      - tb/test_no_tree.py: { file_type: user, copyto: test_no_tree.py }
+
+  lint_verilator:
+    files:
+      - lint/verilator_waiver.vlt: { file_type: vlt }
+
+parameters:
+  ADDR_WIDTH:
+    datatype: int
+    description: Width of memory where the signature is stored.
+    paramtype: vlogparam
+  DATA_WIDTH:
+    datatype: int
+    description: Data width of internal and external streams
+    paramtype: vlogparam
+  MERKLE_PROOF_BASEADDR:
+    datatype: int
+    description: Base address of the Merkle Tree Path nodes in the CROSS signature.
+    paramtype: vlogparam
+
+targets:
+  default: &default
+    filesets:
+      - tool_verilator ? (lint_verilator)
+      - rtl
+    toplevel: tree_unit
+
+  synth:
+    <<: *default
+    description: synthesis with Vivado for preliminary timing and resource analysis
+    default_tool: vivado
+    filesets_append:
+      - synth_files
+    generate:
+      - clock_generator
+    toplevel: no_tree_unit
+    tools:
+      vivado:
+        part: xc7a200tfbg484-3
+
+  sim:
+    <<: *default
+    description: Simulate the design for debug
+    default_tool: verilator
+    filesets_append:
+      - tb
+      - tb_cocotb
+    toplevel: tb_no_tree
+    parameters_append: # just for a brief check
+      - RSDP=true
+      - CATEGORY_1=true
+      - FAST=true
+    tools:
+      verilator:
+        mode: lint-only
+        verilator_options:
+          - "-Wall"
+          - "--assert"
+          - "--timing"
+    hooks:
+      post_build:
+        - run_cocotb_test
+generate:
+  clock_generator:
+    generator: xilinx_clock_generator
+    parameters:
+      frequency: 100
+      clk_port: "clk"
+      clock_buffer: "BUFGCTRL_X0Y0"
+
+scripts:
+  run_cocotb_test:
+    cmd:
+      - pytest
+      - -n
+      - auto
+      - -o
+      - log_cli=True
+      - --log-file=test-run.log
+      - --junitxml=test-results.xml
+      - --cocotbxml=test-cocotb.xml
+      - --html=report.html
+      - --self-contained-html
+      - test_no_tree.py

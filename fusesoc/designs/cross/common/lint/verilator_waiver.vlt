@@ -1,0 +1,42 @@
+// Copyright 2026, Technical University of Munich
+// Copyright 2026, Politecnico di Milano.
+// SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+//
+// Licensed under the Solderpad Hardware License v 2.1 (the "License");
+// you may not use this file except in compliance with the License, or,
+// at your option, the Apache License version 2.0. You may obtain a
+// copy of the License at
+//
+// https://solderpad.org/licenses/SHL-2.1/
+//
+// Unless required by applicable law or agreed to in writing, any work
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// ----------
+//
+// CROSS - Codes and Restricted Objects Signature Scheme
+//
+// @version 1.0 (April 2026)
+//
+// @author: Patrick Karl <patrick.karl@tum.de>
+
+`verilator_config
+
+lint_off -rule PINCONNECTEMPTY -file "*/rtl_external/fall_through_register.sv" -match "*usage_o*"
+lint_off -rule GENUNNAMED
+lint_off -rule UNUSEDSIGNAL -file "*/rtl_external/fifo_v3.sv" -match "*testmode_i*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl_external/spill_register_flushable.sv" -match "*clk_i*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl_external/spill_register_flushable.sv" -match "*rst_ni*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl_external/spill_register_flushable.sv" -match "*flush_i*"
+
+lint_off -rule WIDTHEXPAND -file "*/rtl/downscale.sv"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/width_converter.sv" -match "*axis_aclk*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/width_converter.sv" -match "*axis_rst_n*"
+
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/axis_clone.sv" -match "*rst_n*"
+lint_off -rule UNUSEDSIGNAL -file "*/rtl/axis_clone.sv" -match "*clk*"
+
+lint_off -rule DECLFILENAME -file "*/rtl/memctrl_intf.svh" -match "*MEMCTRL*"
