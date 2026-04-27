@@ -115,7 +115,7 @@ To run the behavioral simulation of a module, use the `sim` target.
 > ```
 
 This will create a working directory `./build` containing the simulation report (e.g., `report.html`) and all files used during simulation.
-Using the `--setup` flag creates the working directory under without starting the simulation. 
+Using the `--setup` flag creates the working directory without starting the simulation. 
 
 There are several testbenches, targeting the internal submodules (e.g., the arithmetic units, the sampling units, the SHA-3 hash function) etc.
 When running the top-level test, keygen, sign and verify are tested for all parameter sets and different internal configurations of the width of the matrix multiplier and number of unrolled Keccak rounds.
