@@ -42,6 +42,7 @@ dependencies:
   - pytest # HW testbenches
   - pytest-xdist # HW testbenches
   - pytest-html==4.2 # HW testbenches
+  - pyserial==3.5 # for accessing serial port for fpga tests
   - ruff # linting and formatting
   - numpy # script dependencies
   - matplotlib # script dependencies
