@@ -45,7 +45,7 @@ if not os.path.isfile('digilent_nexys_video.cfg'):
     print('Config file downloadable e.g. here: https://github.com/openocd-org/openocd/blob/master/tcl/board/digilent_nexys_video.cfg')
     exit()
 
-# Generate shared libs if not available
+# Generate shared objects if not available
 if not os.path.isdir('./libs'):
     Path('./libs').mkdir()
     cwd = os.getcwd()

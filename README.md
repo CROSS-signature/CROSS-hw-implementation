@@ -1,4 +1,6 @@
-This repository hosts the Register Transfer Level (RTL) SystemVerilog code implementing a hardware accelerator for the [Codes and Restricted Objects Signature Scheme (CROSS) cryptographic scheme](https://www.cross-crypto.com/) (v2.2), including testbenches for behavioral simulation and utility scripts for the Vivado (FPGA) synthesis tool.
+# CROSS Hardware Implementation
+
+This repository hosts the Register Transfer Level (RTL) SystemVerilog code implementing a hardware accelerator for the [Codes and Restricted Objects Signature Scheme (CROSS)](https://www.cross-crypto.com/) (v2.2), including testbenches for behavioral simulation and utility scripts for the Vivado (FPGA) synthesis tool.
 
 The repository structure is primarily designed to align with the specifications of the [FuseSoC package manager](https://github.com/olofk/fusesoc), encouraging HDL code modularity and broad compatibility with EDA tools thanks to the underlying [Edalize library](https://github.com/olofk/edalize).
 
@@ -8,12 +10,42 @@ Configuration files are in the [.github/workflows](.github/workflows) folder.
 The code is released under the [Solderpad Hardware License v 2.1](LICENSE),
 excluding [FIFO and spill register](fusesoc/designs/cross/common/rtl_external) ([Solderpad Hardware License v 0.51](fusesoc/designs/cross/common/rtl_external/LICENSE)).
 
+- [Repository structure](#repository-structure)
 - [User guide](#user-guide)
   - [Dependencies](#dependencies)
   - [EDA tool execution](#eda-tool-execution)
 - [Developer guide](#developer-guide)
   - [Design Verification](#design-verification)
 - [Bibliography](#bibliography)
+
+# Repository structure
+
+The tree below shows the first three levels of directories in the repository:
+
+- [`./fusesoc/designs`](./fusesoc/designs): contains the design, testbench and linter files. `misc` includes the C reference implementation of CROSS which is used as golden model in top-level functional simulation and functional tests run on FPGA.
+- [`./fusesoc/fpga`](./fusesoc/fpga): contains Vivado utility scripts for out-of-context synthesis runs.
+- [`./fusesoc/test`](./fusesoc/test): contains a test harness written in VHDL and corresponding constraint files for the Digilent Nexys Video board.
+- [`./utils`](./utils): contains build and test scripts to run the design on the Digilent Nexys Video while automatically checking the output against the C reference implementation.
+
+```
+.
+├── fusesoc
+│   ├── designs
+│   │   ├── axi
+│   │   ├── cross
+│   │   ├── misc
+│   │   ├── modulo
+│   │   └── sha3
+│   ├── fpga
+│   │   └── scripts
+│   └── test
+│       ├── lint
+│       ├── rtl
+│       ├── tcl
+│       └── xdc
+└── utils
+
+```
 
 # User guide
 
@@ -36,7 +68,7 @@ System dependencies for Debian-based distributions are:
 The following binaries are expected to be present in any of the `$PATH` directories:
 - `verible` (latest version)
 - `vivado` (version `2023.1`)
-- `openocd` (version `0.12.0`, required only for test on Digilent Nexy Video)
+- `openocd` (version `0.12.0`, required only for test on Digilent Nexys Video)
 
 > Older versions of that software are not guaranteed to work correctly.
 
@@ -46,7 +78,7 @@ $ micromamba create --file environment.yml --yes
 ```
 The environment is then cached and can be activated by calling
 ```console
-micromamba activate cross-hw-design
+$ micromamba activate cross-hw-design
 ```
 
 > For the sake of reproducibility, the latest working (x86_64) environment can be rebuilt using the [env_freeze.yml](env_freeze.yml) and [pip_freeze.txt](pip_freeze.txt).
@@ -63,10 +95,10 @@ All these steps are performed by analyzing the `.core` module definitions in the
 
 The base command is:
 ```console
-fusesoc run --target <target> <VLNV> [<parameters> ...]
+$ fusesoc run --target <target> <VLNV> [<parameters> ...]
 ```
 
-where `<target>` is either `lint`, `sim`, `fpga`, or `asic` depending on the operation to perform, `<VLNV>` is the colon-separated Vendor, Library, Name, and Version (VLNV) string identifying a module definition in a `.core` file.
+where `<target>` is typically either `sim` or `synth` depending on the operation to perform, `<VLNV>` is the colon-separated Vendor, Library, Name, and Version (VLNV) string identifying a module definition in a `.core` file.
 
 > You can list all the available cores, along with a short description, with the command `fusesoc core list`.
 
@@ -79,11 +111,17 @@ See [FuseSoC](https://fusesoc.readthedocs.io/en/stable/) and [Edalize](https://e
 To run the behavioral simulation of a module, use the `sim` target.
 > For example, this command runs the behavioral simulation of the exponentiation vector:
 > ```console
-> $ fusesoc run --target sim cross:arithmetic:exp_vector --RSDP --CATEGORY_1
+> $ fusesoc run --target sim cross:arithmetic:exp_vector
 > ```
 
-There are several testbenches, targeting the internal sub-modules (e.g., the arithmetic units, the sampling units, the SHA-3 hash function) etc.
-All currently available simulation targets are listed below.
+This will create a working directory `./build` containing the simulation report (e.g., `report.html`) and all files used during simulation.
+Using the `--setup` flag creates the working directory under without starting the simulation. 
+
+There are several testbenches, targeting the internal submodules (e.g., the arithmetic units, the sampling units, the SHA-3 hash function) etc.
+When running the top-level test, keygen, sign and verify are tested for all parameter sets and different internal configurations of the width of the matrix multiplier and number of unrolled Keccak rounds.
+Top-level and sampling related tests are automatically checked against the C reference implementation of CROSS.
+
+All currently available simulation targets are listed below:
 
 | Name | Command |
 |------|---------|
@@ -111,14 +149,15 @@ More details are provided in the [design Verification](#design-verification) sec
 
 ### FPGA synthesis target
 
-The HDL files are FPGA manufacturer agnostic, with the exception of the final top-level wrapper instantiating the I/O buffers and clock cells specific to the Xilinx 7-Series FPGA family.
+The HDL files are FPGA manufacturer agnostic.
 
-> Here there is a command example which starts the synthesis of the CROSS vectorized exponentiation module setting the SystemVerilog define `SRDP` and `CATEGORY_1` parameter choice:
+> Here there is a command example which starts the synthesis of the CROSS vectorized exponentiation module setting the SystemVerilog define `RSDP` and `CATEGORY_1` parameter choice:
 > ```console
 > $ fusesoc run --build --target synth cross:arithmetic:exp_vector --RSDP --CATEGORY_1
 > ```
 
 > The `--build` flag skips the automatic loading of the bitstream to the FPGA connected to the host.
+> The `--setup` flag skips the synthesis and only creates the working directory containing `.tcl` scripts for Vivado.
 
 > The default synthesis tool is Vivado, but it can be overwritten by appending `--tool <EDA_TOOL_NAME>` to the previous command.
 
@@ -128,8 +167,9 @@ During the FPGA synthesis with the Vivado EDA tool, some environment variables a
 - `XLX_IMPL_STRAT`: specifies one of the supported implementation strategies (see Vivado manual)
 - `XLX_FLAT_HIER`: disable flat hierarchy to maintain module structure and simplify the debugging process
 
+
 ### FPGA validation
-The repository provides a test harness to run the design on a Digilent Nexy Video board.
+The repository provides a test harness to run the design on a Digilent Nexys Video board.
 Required scripts and corresponding [README](./utils/README.md) can be found under [`./utils`](./utils).
 
 
@@ -145,11 +185,13 @@ Linting of the SystemVerilog code is performed with [verible](https://github.com
 The hardware modules undergo behavioral simulation, employing the open-source [Verilator simulator](https://github.com/verilator/verilator).
 Verilator translates Verilog and SystemVerilog code into C++ sources.
 
-Testbenches have been redesigned to utilize the [Cocotb framework](https://www.cocotb.org/), which enables the rapid creation of cross-simulator testbenches using the Python language.
+Testbenches have been redesigned to utilize the [Cocotb](https://www.cocotb.org/) framework, which enables the rapid creation of cross-simulator testbenches using the Python language.
+For the top-level test as well as for several sampling modules, the output is automatically checked against the C reference implementation, which is made accessible in Python via [ctypes](https://docs.python.org/3/library/ctypes.html).
+Therefore, the C files are compiled into shared objects (`.so`) when invoking fusesoc for the first time.
 
-The development could be  defining the following environment variables:
+The development could be defining the following environment variables:
 - `export DUMP_FST=true` to produce the simulation traces to be inspected (i.e. with [gtkwave](https://gtkwave.sourceforge.net/))
-- `export RANDOM_SEED=<seed>` to fix the seed and generate reproducible Cocotb-based tests. In case the CI detects a failing test, the used seed is present in the logs
+- `export RANDOM_SEED=<seed>` to fix the seed and generate reproducible Cocotb-based tests for arithmetic modules. In case the CI detects a failing test, the used seed is present in the logs
 - `export LOGLEVEL=DEBUG` to select the desired Python logging verbosity
 
 > [!NOTE]
