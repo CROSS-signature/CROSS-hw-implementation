@@ -102,8 +102,8 @@ repos:
           - "CAPI=2:"
           - --no-extra-eol
       - id: insert-license
-        name: Insert license in TCL and XDC files
-        files: \.(tcl|xdc)$
+        name: Insert license in TCL, XDC, and Python files
+        files: \.(tcl|xdc|py)$
         args:
           - --license-filepath
           - license_header.txt

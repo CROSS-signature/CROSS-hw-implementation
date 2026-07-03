@@ -1,0 +1,65 @@
+# Copyright 2026, Technical University of Munich
+# Copyright 2026, Politecnico di Milano.
+# SPDX-License-Identifier: Apache-2.0 WITH SHL-2.1
+#
+# Licensed under the Solderpad Hardware License v 2.1 (the "License");
+# you may not use this file except in compliance with the License, or,
+# at your option, the Apache License version 2.0. You may obtain a
+# copy of the License at
+#
+# https://solderpad.org/licenses/SHL-2.1/
+#
+# Unless required by applicable law or agreed to in writing, any work
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# ----------
+#
+# CROSS - Codes and Restricted Objects Signature Scheme
+#
+# @version 1.0 (April 2026)
+#
+# @author: Francesco Antognazza <francesco.antognazza@polimi.it>
+---
+name: TOP
+
+parameter_set:
+  VARIANT:
+    - RSDP
+    - RSDPG
+  CATEGORY:
+    - CATEGORY_1
+    - CATEGORY_3
+    - CATEGORY_5
+  OPTIMIZATION:
+    - FAST
+    - BALANCED
+    - SMALL
+
+# list of modules and their possible parameter configs
+modules:
+  top:
+    - KECCAK_UNROLL_FACTOR: 1
+      MAT_DATA_WIDTH: 64
+    - KECCAK_UNROLL_FACTOR: 1
+      MAT_DATA_WIDTH: 192
+    - KECCAK_UNROLL_FACTOR: 2
+      MAT_DATA_WIDTH: 192
+    - KECCAK_UNROLL_FACTOR: 1
+      MAT_DATA_WIDTH: 712
+    - KECCAK_UNROLL_FACTOR: 2
+      MAT_DATA_WIDTH: 712
+
+# template command for performance and resource DSE
+resources:
+  cmd_template: fusesoc run --build --build-root '${build_dir}' --target synth cross:top:top ${parameter_set} ${extra_args} --jobs ${jobs} --part ${part}
+  parts:
+    xc7a200tffg1156-3:
+      clock:
+        interval: [50, 250]
+        resolution: 1
+performance:
+  cmd_template: >-
+    TB_ITERATIONS=1 fusesoc run --build-root '${build_dir}' --target sim cross:top:top

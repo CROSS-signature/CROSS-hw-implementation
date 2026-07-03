@@ -72,3 +72,42 @@ This vector has 3-bits, the first two of which encode the requested operation as
 | KEYGEN		| 0x00 			|
 | SIGN			| 0x01 			|
 | VERIFY		| 0x02 			|
+
+## Design Space Exploration (DSE)
+
+The `cross_dse.py` script automates the Design Space Exploration (DSE). To start the full automated DSE:
+```console
+$ python3 cross_dse.py --outputdir <DSE_OUTPUT_DIR> --repodir . --config <CONFIG_YAML> --jobs <NUM_JOBS>
+```
+
+### Configuration File (`<CONFIG_YAML>`)
+The YAML configuration file specifies the modules and parameters to explore, as well as the commands to execute. The fields are:
+
+- `name`: (String) A name used as part of the output directory for this DSE run.
+- `parameter_set`: (Dictionary, optional) Global parameters to iterate over (e.g., `VARIANT`, `CATEGORY`, `OPTIMIZATION`). The DSE will run for the Cartesian product of all provided parameter lists.
+- `modules`: (Dictionary) A mapping of module names to a list of specific parameter configurations (e.g., `DATA_WIDTH`). Each module will be evaluated with its own parameters combined with the global `parameter_set`.
+- `init_commands`: (List of Strings, optional) Shell commands to run before starting the simulation or synthesis jobs (e.g., to setup the environment).
+- `resources`: (Dictionary, optional) Defines the synthesis configurations.
+  - `cmd_template`: Template string for the `fusesoc` synthesis command. Variables like `${module}`, `${parameter_set}`, `${extra_args}`, `${jobs}`, and `${part}` are substituted during execution.
+  - `parts`: Dictionary of FPGA parts to explore. For each part, specify a `clock` dictionary with:
+    - `interval`: A list with `[MIN_FREQ, MAX_FREQ]` in MHz to explore.
+    - `resolution`: The clock resolution in MHz for the bisection algorithm.
+- `performance`: (Dictionary, optional) Defines the simulation configurations.
+  - `cmd_template`: Template string for the `fusesoc` simulation command. Variables like `${module}` and `${jobs}` are substituted.
+
+### Additional Utilities
+
+To find the maximum frequency of a specific component via a bisection algorithm:
+```console
+$ python3 max_freq.py --design <VLNV> --part <CHIP_PART> --clock-interval <MIN_FREQ> <MAX_FREQ> --clock-resolution <RESOLUTION>
+```
+
+To parse and generate performance reports (CSV/HTML) from the DSE simulation results:
+```console
+$ python3 parse_performance_figures.py --inputdir <OUTPUT_DIR>
+```
+
+To parse and generate resource and timing reports (CSV/HTML) from the Vivado synthesis runs:
+```console
+$ python3 parse_resource_figures.py --inputdir <OUTPUT_DIR> --target artix
+```

@@ -67,7 +67,7 @@ dependencies:
   - bleach=6.3.0=pyhcf101f3_0
   - botocore=1.40.70=pyhd8ed1ab_0
   - bottleneck=1.6.0=np2py312hfb8c2c5_3
-  - bqplot=0.12.37=pyhd8ed1ab_0
+  - bqplot=0.13.1=pyhcf101f3_0
   - brotli=1.2.0=hed03a55_1
   - brotli-bin=1.2.0=hb03c661_1
   - brotli-python=1.2.0=py312hdb49522_1
@@ -400,7 +400,7 @@ dependencies:
       - teroshdl==3.0.0
       - typing_extensions==4.14.0
       - vsg==3.31.0
-      - vunit_hdl==4.7.0
+      - vunit_hdl==4.7.1
       - wasmtime==33.0.0
       - xdg==6.0.0
       - xtract==0.1a3

@@ -48,8 +48,16 @@ report_qor_suggestions -file report_qor_suggestions.txt
 
 if {[info exists env(XLX_SYNTH_OOC)]} {
   # disable relative error on bitstream generation
-  send_msg "Bitstream generation 1-1" INFO "Out-of-context synthesis detected, skipping bitstream generation"
-  set_property IS_ENABLED 0 [get_drc_checks {HDOOC-3}]
+  send_msg "Bitstream generation 1-1" INFO "Out-of-context synthesis detected"
+
+  # Safely demote/disable DRCs only if they exist in the current Vivado database
+  foreach drc {NSTD-1 UCIO-1 HDOOC-3} {
+      if {[llength [get_drc_checks -quiet $drc]] > 0} {
+          catch { set_property SEVERITY {Warning} [get_drc_checks $drc] }
+          catch { set_property IS_ENABLED 0 [get_drc_checks $drc] }
+          catch { create_waiver -type DRC -id $drc -description "OOC baseline bypass" }
+      }
+  }
 }
 
 if [expr {$slack_ns < 0}] {

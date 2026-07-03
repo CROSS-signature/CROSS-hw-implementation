@@ -42,17 +42,19 @@ class XilinxClockGenerator(Generator):
 
         period = (1000) / float(frequency)
 
-        xdc_content = (
+        xdc_commands = []
+        xdc_commands.append(
             f"create_clock -add -name sys_clk -period {period:.3f}"
             + f" -waveform {{{0:.3f} {(float(period)/2):.3f}}} [get_ports {{ {clk_port} }}];"
         )
         if clock_buffer != "":
-            xdc_content += f"set_property HD.CLK_SRC {clock_buffer} [get_ports {{ {clk_port} }}];"
+            xdc_commands.append(f"set_property HD.CLK_SRC {clock_buffer} [get_ports {{ {clk_port} }}];")
+        xdc_commands.append("set_property BITSTREAM.General.UnconstrainedPins {Allow} [current_design]")
 
         file_name = "xilinx_clock_source.xdc"
 
         with open(file_name, "w") as xdc_file:
-            xdc_file.write(xdc_content)
+            xdc_file.write("\n".join(xdc_commands))
             xdc_file.write("\n")
 
         self.add_files(files=[file_name], targets=["default"], fileset="xdc_clock", file_type="xdc")

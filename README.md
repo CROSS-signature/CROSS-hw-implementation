@@ -81,7 +81,7 @@ The environment is then cached and can be activated by calling
 $ micromamba activate cross-hw-design
 ```
 
-> For the sake of reproducibility, the latest working (x86_64) environment can be rebuilt using the [env_freeze.yml](env_freeze.yml) and [pip_freeze.txt](pip_freeze.txt).
+> For the sake of reproducibility, the latest working (x86_64) environment can be rebuilt using the [env_freeze.yml](env_freeze.yml).
 
 ## EDA tool execution
 
@@ -115,7 +115,7 @@ To run the behavioral simulation of a module, use the `sim` target.
 > ```
 
 This will create a working directory `./build` containing the simulation report (e.g., `report.html`) and all files used during simulation.
-Using the `--setup` flag creates the working directory without starting the simulation. 
+Using the `--setup` flag creates the working directory without starting the simulation.
 
 There are several testbenches, targeting the internal submodules (e.g., the arithmetic units, the sampling units, the SHA-3 hash function) etc.
 When running the top-level test, keygen, sign and verify are tested for all parameter sets and different internal configurations of the width of the matrix multiplier and number of unrolled Keccak rounds.
@@ -171,6 +171,18 @@ During the FPGA synthesis with the Vivado EDA tool, some environment variables a
 ### FPGA validation
 The repository provides a test harness to run the design on a Digilent Nexys Video board.
 Required scripts and corresponding [README](./utils/README.md) can be found under [`./utils`](./utils).
+
+### Design Space Exploration (DSE)
+
+The repository provides utilities to automate the Design Space Exploration (DSE) of the CROSS hardware implementation. These scripts evaluate performance (through simulation) and resource utilization (through synthesis).
+
+To start the full automated DSE:
+```console
+$ python3 utils/cross_dse.py --outputdir <DSE_OUTPUT_DIR> --repodir . --config <CONFIG_YAML> --jobs <NUM_JOBS>
+```
+This utility will run the simulations (determining the clock latency) and synthesis runs (determining area and maximum frequency) for each module and parameter configuration listed in the provided YAML configuration file. The results are gathered and reported in a pandas dataframe exported as CSV and HTML files.
+
+For further details on additional DSE utilities and the configuration file format, please refer to the [utils/README.md](utils/README.md).
 
 
 # Developer guide
