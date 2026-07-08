@@ -98,11 +98,11 @@ The YAML configuration file specifies the modules and parameters to explore, as 
 
 Available configuration files:
 
-- ../fusesoc/designs/cross/arithmetic/fpga/benchmark.yaml
-- ../fusesoc/designs/cross/packing/fpga/benchmark.yaml
-- ../fusesoc/designs/cross/sampling/fpga/benchmark.yaml
-- ../fusesoc/designs/cross/top/fpga/benchmark.yaml
-- ../fusesoc/designs/cross/trees/fpga/benchmark.yaml
+- `../fusesoc/designs/cross/arithmetic/fpga/benchmark.yaml`
+- `../fusesoc/designs/cross/packing/fpga/benchmark.yaml`
+- `../fusesoc/designs/cross/sampling/fpga/benchmark.yaml`
+- `../fusesoc/designs/cross/top/fpga/benchmark.yaml`
+- `../fusesoc/designs/cross/trees/fpga/benchmark.yaml`
 
 Note that these runs can take several ours depending on the configuration of e.g. the investigated frequency range.
 

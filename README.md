@@ -190,11 +190,11 @@ For further details on additional DSE utilities and the configuration file forma
 
 Available YAML configuration files:
 
-- ./fusesoc/designs/cross/arithmetic/fpga/benchmark.yaml
-- ./fusesoc/designs/cross/packing/fpga/benchmark.yaml
-- ./fusesoc/designs/cross/sampling/fpga/benchmark.yaml
-- ./fusesoc/designs/cross/top/fpga/benchmark.yaml
-- ./fusesoc/designs/cross/trees/fpga/benchmark.yaml
+- `./fusesoc/designs/cross/arithmetic/fpga/benchmark.yaml`
+- `./fusesoc/designs/cross/packing/fpga/benchmark.yaml`
+- `./fusesoc/designs/cross/sampling/fpga/benchmark.yaml`
+- `./fusesoc/designs/cross/top/fpga/benchmark.yaml`
+- `./fusesoc/designs/cross/trees/fpga/benchmark.yaml`
 
 
 # Developer guide
