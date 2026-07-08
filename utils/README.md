@@ -76,8 +76,9 @@ This vector has 3-bits, the first two of which encode the requested operation as
 ## Design Space Exploration (DSE)
 
 The `cross_dse.py` script automates the Design Space Exploration (DSE). To start the full automated DSE:
+
 ```console
-$ python3 cross_dse.py --outputdir <DSE_OUTPUT_DIR> --repodir . --config <CONFIG_YAML> --jobs <NUM_JOBS>
+$ python3 cross_dse.py --outputdir <DSE_OUTPUT_DIR> --repodir .. --config <CONFIG_YAML> --jobs <NUM_JOBS>
 ```
 
 ### Configuration File (`<CONFIG_YAML>`)
@@ -94,6 +95,16 @@ The YAML configuration file specifies the modules and parameters to explore, as 
     - `resolution`: The clock resolution in MHz for the bisection algorithm.
 - `performance`: (Dictionary, optional) Defines the simulation configurations.
   - `cmd_template`: Template string for the `fusesoc` simulation command. Variables like `${module}` and `${jobs}` are substituted.
+
+Available configuration files:
+
+- ../fusesoc/designs/cross/arithmetic/fpga/benchmark.yaml
+- ../fusesoc/designs/cross/packing/fpga/benchmark.yaml
+- ../fusesoc/designs/cross/sampling/fpga/benchmark.yaml
+- ../fusesoc/designs/cross/top/fpga/benchmark.yaml
+- ../fusesoc/designs/cross/trees/fpga/benchmark.yaml
+
+Note that these runs can take several ours depending on the configuration of e.g. the investigated frequency range.
 
 ### Additional Utilities
 

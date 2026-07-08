@@ -48,5 +48,5 @@ resources:
   parts:
     xc7a200tffg1156-3:
       clock:
-        interval: [50, 600]
+        interval: [50, 300]
         resolution: 1

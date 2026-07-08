@@ -416,7 +416,6 @@ class DSERunner(Runner):
             "--revision",
             "-R",
             type=str,
-            required=True,
             default="HEAD",
             help="Repo objects revision (e.g., SHA-1 commit ID or tag)",
         )

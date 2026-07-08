@@ -69,7 +69,7 @@ targets:
       - rtl
     toplevel: packing_unit
 
-  synth_packing_unit:
+  synth:
     <<: *default
     description: synthesis with Vivado for preliminary timing and resource analysis
     default_tool: vivado
@@ -78,19 +78,6 @@ targets:
     generate:
       - clock_generator
     toplevel: packing_unit
-    tools:
-      vivado:
-        part: xc7a200tfbg484-3
-
-  synth_unpacking_unit:
-    <<: *default
-    description: synthesis with Vivado for preliminary timing and resource analysis
-    default_tool: vivado
-    filesets_append:
-      - synth_files
-    generate:
-      - clock_generator
-    toplevel: unpacking_unit
     tools:
       vivado:
         part: xc7a200tfbg484-3

@@ -151,9 +151,10 @@ More details are provided in the [design Verification](#design-verification) sec
 
 The HDL files are FPGA manufacturer agnostic.
 
-> Here there is a command example which starts the synthesis of the CROSS vectorized exponentiation module setting the SystemVerilog define `RSDP` and `CATEGORY_1` parameter choice:
+> Here there is a command example which starts the synthesis/implementation of the CROSS vectorized exponentiation module setting the SystemVerilog define `RSDP`, `CATEGORY_1` and `FAST` parameter choice:
+
 > ```console
-> $ fusesoc run --build --target synth cross:arithmetic:exp_vector --RSDP --CATEGORY_1
+> $ fusesoc run --build --target synth cross:arithmetic:exp_vector --RSDP --CATEGORY_1 --FAST
 > ```
 
 > The `--build` flag skips the automatic loading of the bitstream to the FPGA connected to the host.
@@ -162,11 +163,13 @@ The HDL files are FPGA manufacturer agnostic.
 > The default synthesis tool is Vivado, but it can be overwritten by appending `--tool <EDA_TOOL_NAME>` to the previous command.
 
 During the FPGA synthesis with the Vivado EDA tool, some environment variables are used to apply common configurations:
+
 - `XLX_SYNTH_OOC`: enable out-of-context synthesis for early evaluation of non-top-level modules
 - `XLX_SYNTH_STRAT`: specifies one of the supported synthesis strategies (see Vivado manual)
 - `XLX_IMPL_STRAT`: specifies one of the supported implementation strategies (see Vivado manual)
 - `XLX_FLAT_HIER`: disable flat hierarchy to maintain module structure and simplify the debugging process
 
+Note that for standalone synthesis/implementation runs, `XLX_SYNTH_OOC` must be set.
 
 ### FPGA validation
 The repository provides a test harness to run the design on a Digilent Nexys Video board.
@@ -177,12 +180,21 @@ Required scripts and corresponding [README](./utils/README.md) can be found unde
 The repository provides utilities to automate the Design Space Exploration (DSE) of the CROSS hardware implementation. These scripts evaluate performance (through simulation) and resource utilization (through synthesis).
 
 To start the full automated DSE:
+
 ```console
 $ python3 utils/cross_dse.py --outputdir <DSE_OUTPUT_DIR> --repodir . --config <CONFIG_YAML> --jobs <NUM_JOBS>
 ```
 This utility will run the simulations (determining the clock latency) and synthesis runs (determining area and maximum frequency) for each module and parameter configuration listed in the provided YAML configuration file. The results are gathered and reported in a pandas dataframe exported as CSV and HTML files.
 
 For further details on additional DSE utilities and the configuration file format, please refer to the [utils/README.md](utils/README.md).
+
+Available YAML configuration files:
+
+- ./fusesoc/designs/cross/arithmetic/fpga/benchmark.yaml
+- ./fusesoc/designs/cross/packing/fpga/benchmark.yaml
+- ./fusesoc/designs/cross/sampling/fpga/benchmark.yaml
+- ./fusesoc/designs/cross/top/fpga/benchmark.yaml
+- ./fusesoc/designs/cross/trees/fpga/benchmark.yaml
 
 
 # Developer guide

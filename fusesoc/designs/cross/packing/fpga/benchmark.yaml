@@ -44,9 +44,9 @@ modules:
 # template command for performance and resource DSE
 resources:
   cmd_template: >-
-    fusesoc run --build --build-root '${build_dir}' --target synth_${module} cross:packing:packing_unit ${parameter_set} ${extra_args} --jobs ${jobs} --part ${part}
+    fusesoc run --build --build-root '${build_dir}' --target synth cross:packing:${module} ${parameter_set} ${extra_args} --jobs ${jobs} --part ${part}
   parts:
     xc7a200tffg1156-3:
       clock:
-        interval: [50, 600]
+        interval: [50, 300]
         resolution: 1

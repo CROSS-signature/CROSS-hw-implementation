@@ -67,7 +67,7 @@ resources:
       clock:
         interval:
           - 50
-          - 600
+          - 300
         resolution: 1
 performance:
   cmd_template: >-
